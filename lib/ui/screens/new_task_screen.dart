@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/ui/screens/add_new_task_screen.dart';
 import '../widgets/task_card.dart';
 import '../widgets/task_count_by_status_card.dart';
 
@@ -60,9 +61,17 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: _onTapAddNewTaskButton,
         child: const Icon(Icons.add),
       ),
+    );
+  }
+
+  void _onTapAddNewTaskButton() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => AddNewTaskScreen()),
+      (predicate) => false,
     );
   }
 }
