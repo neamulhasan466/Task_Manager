@@ -1,5 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:task_manager/ui/screens/forgot_passwoard_verify_email_screen.dart';
+import 'package:task_manager/ui/screens/main_nav_bar_holder_screen.dart';
 import 'package:task_manager/ui/screens/sing_up_screen.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 
@@ -49,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
           
                   FilledButton(
           
-                    onPressed: () {},
+                    onPressed:_onTapLoginButton,
                     child: const Icon(Icons.arrow_right_outlined),
                   ),
                   const SizedBox(height: 36),
@@ -58,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       children: [
                         TextButton(
-                          onPressed: () {},
+                          onPressed:_onTapForgotPasswoardButton,
                           child: const Text(
                             'Forgot Password?',
                             style: TextStyle(color: Colors.grey),
@@ -97,6 +99,21 @@ class _LoginScreenState extends State<LoginScreen> {
       MaterialPageRoute(builder: (context) => SingUpScreen()),
     );
   }
+  void _onTapForgotPasswoardButton() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ForgotPasswoardVerifyEmailScreen()),
+    );
+  }
+
+  void _onTapLoginButton() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => MainNavBarHolderScreen()),
+        (predicate) =>false,
+    );
+  }
+
 
 
   @override
