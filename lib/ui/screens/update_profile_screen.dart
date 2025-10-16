@@ -1,26 +1,35 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
+import 'package:task_manager/ui/widgets/tm_app_bar.dart';
 
-class SingUpScreen extends StatefulWidget {
-  const SingUpScreen({super.key});
-  static const String name = '/sing-up';
+import '../widgets/photo_picker_field.dart';
+
+class UpdateProfileScreen extends StatefulWidget {
+  const UpdateProfileScreen({super.key});
+  static const String name = '/update-profile';
+
 
   @override
-  State<SingUpScreen> createState() => _SingUpScreenState();
+  State<UpdateProfileScreen> createState() => _UpdateProfileScreenState();
 }
 
-class _SingUpScreenState extends State<SingUpScreen> {
+class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   final TextEditingController _emailTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
   final TextEditingController _firstNameTEController = TextEditingController();
   final TextEditingController _lastNameTEController = TextEditingController();
   final TextEditingController _mobileTEController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final ImagePicker _imagePicker = ImagePicker();
+  XFile? _selectedImage;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: TMAppBar(
+        fromUpdateProfile: true,
+      ),
       body: ScreenBackground(
         child: SingleChildScrollView(
           child: Padding(
@@ -30,19 +39,25 @@ class _SingUpScreenState extends State<SingUpScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 82),
+                  const SizedBox(height: 24),
                   Text(
-                    'Join With Us',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    'Update Profile',
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleLarge,
                   ),
                   const SizedBox(height: 24),
-
+                  PhotoPickerField(
+                    onTap: _pickImage,
+                    selectedPhoto: _selectedImage,
+                  ),
                   TextFormField(
                     controller: _firstNameTEController,
                     decoration: const InputDecoration(hintText: 'First Name'),
                   ),
                   const SizedBox(height: 8),
-
+        
                   TextFormField(
                     controller: _lastNameTEController,
                     obscureText: true,
@@ -66,33 +81,12 @@ class _SingUpScreenState extends State<SingUpScreen> {
                     obscureText: true,
                     decoration: const InputDecoration(hintText: 'Password'),
                   ),
-
+        
                   const SizedBox(height: 16),
-
+        
                   FilledButton(
                     onPressed: () {},
                     child: const Icon(Icons.arrow_right_outlined),
-                  ),
-                  const SizedBox(height: 36),
-
-                  Center(
-                    child: RichText(
-                      text: TextSpan(
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        text: "Already have an account? ",
-                        children: [
-                          TextSpan(
-                            text: 'Login',
-                            style: const TextStyle(color: Colors.green),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = _onTaploginButton,
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -102,11 +96,15 @@ class _SingUpScreenState extends State<SingUpScreen> {
       ),
     );
   }
+Future<void> _pickImage() async{
+   XFile? pickedImage = await _imagePicker.pickImage(source: ImageSource.gallery);
+   if(pickedImage != null){
+       _selectedImage = pickedImage;
+       setState(() {
 
-  void _onTaploginButton() {
-    Navigator.pop(context);
-  }
-
+       });
+   }
+}
   @override
   void dispose() {
     _emailTEController.dispose();
@@ -117,3 +115,4 @@ class _SingUpScreenState extends State<SingUpScreen> {
     super.dispose();
   }
 }
+

@@ -7,6 +7,8 @@ import 'completed_task_screen.dart';
 
 class MainNavBarHolderScreen extends StatefulWidget {
   const MainNavBarHolderScreen({super.key});
+  static const String name = '/deshboard';
+
 
   @override
   State<MainNavBarHolderScreen> createState() => _MainNavBarHolderScreenState();
