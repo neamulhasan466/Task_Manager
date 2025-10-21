@@ -187,7 +187,6 @@ class _LoginScreenState extends State<LoginScreen> {
       final user = UserModel.fromJson(userData);
 
       // ✅ Save to local storage
-      final authController = AuthController();
       await AuthController.saveUserData(user, token);
 
       // ✅ Success message

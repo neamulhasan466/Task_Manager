@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../widgets/task_card.dart';
 
@@ -25,10 +26,14 @@ class _CancelledTaskScreenState extends State<CancelledTaskScreen> {
                 status: 'Cancelled',
                 statusColor: Colors.redAccent,
                 onDelete: () {
-                  print('Delete clicked for item $index');
+                  if (kDebugMode) {
+                    print('Delete clicked for item $index');
+                  }
                 },
                 onEdit: () {
-                  print('Edit clicked for item $index');
+                  if (kDebugMode) {
+                    print('Edit clicked for item $index');
+                  }
                 },
               );
             },
