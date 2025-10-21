@@ -3,10 +3,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:task_manager/data/services/api_caller.dart';
 import 'package:task_manager/data/utils/urls.dart';
+import 'package:task_manager/ui/controllers/auth_controller.dart';
 import 'package:task_manager/ui/screens/forgot_passwoard_verify_email_screen.dart';
 import 'package:task_manager/ui/screens/main_nav_bar_holder_screen.dart';
 import 'package:task_manager/ui/screens/sing_up_screen.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
+import 'package:task_manager/data/models/user_model.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,7 +23,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   bool _loggingInProgress = false;
+  bool _obscurePassword = true; // 👁️ for show/hide password toggle
 
   @override
   Widget build(BuildContext context) {
@@ -55,11 +60,25 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
 
-                  // Password Field
+                  // Password Field with show/hide eye icon 👁️
                   TextFormField(
                     controller: _passwordTEController,
-                    obscureText: true,
-                    decoration: const InputDecoration(hintText: 'Password'),
+                    obscureText: _obscurePassword,
+                    decoration: InputDecoration(
+                      hintText: 'Password',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
+                    ),
                     validator: (String? value) {
                       if ((value?.length ?? 0) < 6) {
                         return 'Password must be at least 6 characters';
@@ -67,6 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 16),
 
                   // Login Button or Loader
@@ -160,12 +180,22 @@ class _LoginScreenState extends State<LoginScreen> {
       _loggingInProgress = false;
     });
 
-    if (response.isSuccess && response.responseData['status']=='success') {
+    if (response.isSuccess && response.responseData['status'] == 'success') {
+      final userData = response.responseData['data'];
+      final token = response.responseData['token'];
+
+      final user = UserModel.fromJson(userData);
+
+      // ✅ Save to local storage
+      final authController = AuthController();
+      await AuthController.saveUserData(user, token);
+
+      // ✅ Success message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login Successful!')),
       );
 
-      // Navigate to main screen
+      // ✅ Navigate to main screen
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const MainNavBarHolderScreen()),
@@ -173,11 +203,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-
-      SnackBar(
-
-
-          content: Text(response.errorMessage ?? 'Invalid email or password'),
+        SnackBar(
+          content:
+          Text(response.errorMessage ?? 'Invalid email or password'),
         ),
       );
     }
