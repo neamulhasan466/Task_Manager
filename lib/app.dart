@@ -45,7 +45,7 @@ class TaskManagerApp extends StatelessWidget {
       routes: {
         SplashScreen.name : (_) => SplashScreen(),
         LoginScreen.name : (_) => LoginScreen(),
-        SingUpScreen.name : (_) => SingUpScreen(),
+        SignUpScreen.name : (_) => SignUpScreen(),
         MainNavBarHolderScreen.name: (_) => MainNavBarHolderScreen(),
         UpdateProfileScreen.name : (_) => UpdateProfileScreen(),
 
