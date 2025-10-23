@@ -21,6 +21,7 @@ class _MainNavBarHolderScreenState extends State<MainNavBarHolderScreen> {
     ProgressTaskScreen(),
     CancelledTaskScreen(),
     CompletedTaskScreen(),
+
   ];
 
   @override
@@ -59,4 +60,3 @@ class _MainNavBarHolderScreenState extends State<MainNavBarHolderScreen> {
     );
   }
 }
-

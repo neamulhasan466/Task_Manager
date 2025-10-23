@@ -18,19 +18,19 @@ class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
           child: ListView.separated(
             itemCount: 10,
             itemBuilder: (context, index) {
-              return TaskCard(
-                title: 'Completed Task ${index + 1}',
-                description: 'This task has been successfully finished.',
-                date: '16/10/2025',
-                status: 'In Progress',
-                statusColor: Colors.orange,
-                onDelete: () {
-                  print('Delete clicked for item $index');
-                },
-                onEdit: () {
-                  print('Edit clicked for item $index');
-                },
-              );
+             // return TaskCard(
+                // title: 'Completed Task ${index + 1}',
+                // description: 'This task has been successfully finished.',
+                // date: '16/10/2025',
+                // status: 'In Progress',
+                // statusColor: Colors.orange,
+                // onDelete: () {
+                //   print('Delete clicked for item $index');
+                // },
+                // onEdit: () {
+                //   print('Edit clicked for item $index');
+                // },
+             // );
             },
             separatorBuilder: (context, index) => const SizedBox(height: 8),
           ),

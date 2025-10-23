@@ -1,15 +1,13 @@
-import 'package:flutter/foundation.dart';
-
 class TaskStatusCountModel {
   final String status;
   final int count;
 
   TaskStatusCountModel({required this.status, required this.count});
 
-  factory TaskStatusCountModel.fromJson(Map<String, dynamic> jsonData) {
+  factory TaskStatusCountModel.fromJson(Map<String, dynamic> json) {
     return TaskStatusCountModel(
-      status: jsonData['_id'],
-      count: jsonData['sum'],
+      status: json['_id'] ?? '',
+      count: json['sum'] ?? 0,
     );
   }
 }

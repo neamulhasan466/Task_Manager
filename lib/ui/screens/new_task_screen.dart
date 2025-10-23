@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/data/models/task_model.dart';
 import 'package:task_manager/data/models/task_status_count_model.dart';
 import 'package:task_manager/data/services/api_caller.dart';
 import 'package:task_manager/data/utils/urls.dart';
@@ -15,15 +16,24 @@ class NewTaskScreen extends StatefulWidget {
 
 class _NewTaskScreenState extends State<NewTaskScreen> {
   bool _getTaskStatusCountInProgress = false;
+  bool _getAllNewTaskInProgress = false;
+
   List<TaskStatusCountModel> _taskStatusCountList = [];
+  List<TaskModel> _newTaskList = [];
 
   @override
   void initState() {
     super.initState();
-    getAllTaskStatusCount();
+    fetchAllData();
   }
 
-  /// ✅ Fetch task status count from API
+  /// Fetch both task status counts and new tasks
+  Future<void> fetchAllData() async {
+    await getAllTaskStatusCount();
+    await getAllNewTask();
+  }
+
+  /// Fetch task status count from API
   Future<void> getAllTaskStatusCount() async {
     setState(() {
       _getTaskStatusCountInProgress = true;
@@ -56,10 +66,42 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     }
   }
 
+  /// Fetch all new tasks from API
+  Future<void> getAllNewTask() async {
+    setState(() {
+      _getAllNewTaskInProgress = true;
+    });
+
+    final ApiResponse response =
+    await ApiCaller.getRequest(url: Urls.newTaskListUrl);
+
+    if (response.isSuccess) {
+      List<TaskModel> list = [];
+
+      for (Map<String, dynamic> jsonData in response.responseData['data']) {
+        list.add(TaskModel.fromJson(jsonData));
+      }
+
+      setState(() {
+        _newTaskList = list;
+        _getAllNewTaskInProgress = false;
+      });
+    } else {
+      setState(() {
+        _getAllNewTaskInProgress = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('❌ Failed to load new tasks'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
@@ -95,25 +137,38 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
 
             const SizedBox(height: 16),
 
-            // 🔹 Example static task list (You can later replace this with API data)
+            // 🔹 New task list
             Expanded(
-              child: ListView.separated(
-                itemCount: 10,
+              child: _getAllNewTaskInProgress
+                  ? const Center(child: CircularProgressIndicator())
+                  : _newTaskList.isEmpty
+                  ? const Center(
+                child: Text(
+                  'No new tasks found',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              )
+                  : ListView.separated(
+                itemCount: _newTaskList.length,
                 itemBuilder: (context, index) {
+                  final task = _newTaskList[index];
                   return TaskCard(
-                    title: 'Task ${index + 1}',
-                    description: 'This task is currently new.',
-                    date: '16/10/2025',
-                    status: 'New',
-                    statusColor: Colors.green,
-                    onDelete: () {
-                      print('Delete clicked for item $index');
-                    },
-                    onEdit: () {
-                      print('Edit clicked for item $index');
-                    },
-                  );
-                },
+                        title: task.title,
+                        description: task.description,
+                        date: task.createdDate != null
+                            ? task.createdDate!.substring(0, 10) // YYYY-MM-DD
+                            : '',
+                        status: task.status,
+                        statusColor: _getStatusColor(task.status),
+                        onDelete: () {
+                          print('Delete clicked for ${task.title}');
+                        },
+                        onEdit: () {
+                          print('Edit clicked for ${task.title}');
+                        },
+                      );
+
+                  },
                 separatorBuilder: (context, index) =>
                 const SizedBox(height: 8),
               ),
@@ -121,7 +176,6 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
           ],
         ),
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: _onTapAddNewTaskButton,
         child: const Icon(Icons.add),
@@ -129,11 +183,27 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     );
   }
 
-  /// ✅ Add new task navigation
+  /// Navigate to Add New Task screen
   void _onTapAddNewTaskButton() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AddNewTaskScreen()),
     );
+  }
+
+  /// Map task status to color
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'new':
+        return Colors.green;
+      case 'in progress':
+        return Colors.orange;
+      case 'completed':
+        return Colors.blue;
+      case 'overdue':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
 }
