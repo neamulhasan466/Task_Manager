@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:task_manager/ui/controllers/auth_controller.dart';
 
 class ApiCaller {
   static final Logger _logger = Logger();
@@ -12,13 +13,21 @@ class ApiCaller {
     _logRequest(url);
 
     try {
+      final String? token = await AuthController.getToken();
       final http.Response response = await http
-          .get(uri)
+          .get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'token': token,
+        },
+      )
           .timeout(const Duration(seconds: 10));
+
       _logResponse(url, response);
 
-      final int statusCode = response.statusCode;
       final decodedData = _tryDecode(response.body);
+      final int statusCode = response.statusCode;
 
       if (statusCode == 200) {
         return ApiResponse(
@@ -60,18 +69,23 @@ class ApiCaller {
     _logRequest(url, body: body);
 
     try {
+      final String? token = await AuthController.getToken();
+
       final http.Response response = await http
           .post(
-            uri,
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode(body),
-          )
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'token': token,
+        },
+        body: jsonEncode(body),
+      )
           .timeout(const Duration(seconds: 10));
 
       _logResponse(url, response);
 
-      final int statusCode = response.statusCode;
       final decodedData = _tryDecode(response.body);
+      final int statusCode = response.statusCode;
 
       if (statusCode == 200 || statusCode == 201) {
         return ApiResponse(
@@ -127,6 +141,7 @@ class ApiCaller {
   }
 }
 
+/// Common API response model
 class ApiResponse {
   final bool isSuccess;
   final dynamic responseData;
