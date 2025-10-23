@@ -6,8 +6,14 @@ import 'package:task_manager/ui/screens/login_screen.dart';
 import '../screens/update_profile_screen.dart';
 
 class TMAppBar extends StatefulWidget implements PreferredSizeWidget {
-  const TMAppBar({super.key, this.fromUpdateProfile});
+  const TMAppBar({
+    super.key,
+    this.fromUpdateProfile,
+    this.showBackButton = false, // ✅ new optional parameter
+  });
+
   final bool? fromUpdateProfile;
+  final bool showBackButton; // ✅ whether to show the back button
 
   @override
   State<TMAppBar> createState() => _TMAppBarState();
@@ -18,7 +24,7 @@ class TMAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _TMAppBarState extends State<TMAppBar> {
   UserModel? _user;
-  bool _isLoading = true; // tracks if user is still loading
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -41,51 +47,49 @@ class _TMAppBarState extends State<TMAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      // Show placeholder while loading
-      return AppBar(
-        backgroundColor: Colors.green,
-        title: Row(
-          children: const [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person, color: Colors.green),
-            ),
-            SizedBox(width: 8),
-            Text('Loading...', style: TextStyle(color: Colors.white)),
-          ],
-        ),
-      );
-    }
+    final bool canPop = Navigator.canPop(context); // ✅ detect if we can go back
 
-    if (_user == null) {
-      // Show "Guest" if user data not found
-      return AppBar(
-        backgroundColor: Colors.green,
-        title: Row(
-          children: const [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person, color: Colors.green),
-            ),
-            SizedBox(width: 8),
-            Text('Guest', style: TextStyle(color: Colors.white)),
-          ],
-        ),
-      );
-    }
-
-    // Normal AppBar with user info
     return AppBar(
       backgroundColor: Colors.green,
-      title: GestureDetector(
+      automaticallyImplyLeading: false, // we’ll handle leading manually
+      leading: widget.showBackButton || canPop
+          ? IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => Navigator.pop(context),
+      )
+          : null,
+      title: _isLoading
+          ? Row(
+        children: const [
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: Colors.white,
+            child: Icon(Icons.person, color: Colors.green),
+          ),
+          SizedBox(width: 8),
+          Text('Loading...', style: TextStyle(color: Colors.white)),
+        ],
+      )
+          : _user == null
+          ? Row(
+        children: const [
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: Colors.white,
+            child: Icon(Icons.person, color: Colors.green),
+          ),
+          SizedBox(width: 8),
+          Text('Guest', style: TextStyle(color: Colors.white)),
+        ],
+      )
+          : GestureDetector(
         onTap: () {
           if (widget.fromUpdateProfile ?? false) return;
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const UpdateProfileScreen()),
+            MaterialPageRoute(
+              builder: (context) => const UpdateProfileScreen(),
+            ),
           );
         },
         child: Row(
@@ -93,8 +97,9 @@ class _TMAppBarState extends State<TMAppBar> {
             CircleAvatar(
               radius: 18,
               backgroundColor: Colors.white,
-              backgroundImage:
-              _user!.profilePic != null ? NetworkImage(_user!.profilePic!) : null,
+              backgroundImage: _user!.profilePic != null
+                  ? NetworkImage(_user!.profilePic!)
+                  : null,
               child: _user!.profilePic == null
                   ? const Icon(Icons.person, color: Colors.green)
                   : null,
